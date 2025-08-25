@@ -6,6 +6,10 @@ const nutritionSection = document.getElementById("nutritionSection");
 const nutritionList = document.getElementById("nutritionList");
 const ecoSection = document.getElementById("ecoSection");
 const ecoText = document.getElementById("ecoText");
+const fallbackSection = document.getElementById("fallbackSection");
+const fallbackText = document.getElementById("fallbackText");
+
+let nutritionChart; // store chart instance
 
 submitBtn.onclick = async () => {
   const textPrompt = promptBox.value.trim();
@@ -19,6 +23,7 @@ submitBtn.onclick = async () => {
   // Reset sections
   nutritionSection.classList.add("hidden");
   ecoSection.classList.add("hidden");
+  fallbackSection.classList.add("hidden");
 
   try {
     let inputContent;
@@ -59,10 +64,32 @@ If the product is not edible:
         nutritionList.appendChild(li);
       }
       nutritionSection.classList.remove("hidden");
+
+      // Create/Update Chart
+      const ctx = document.getElementById("nutritionChart").getContext("2d");
+      const chartData = {
+        labels: ["Proteins", "Fats", "Carbohydrates"],
+        datasets: [{
+          data: [data.Proteins || 0, data.Fats || 0, data.Carbohydrates || 0],
+          backgroundColor: ["#4caf50", "#ff9800", "#2196f3"]
+        }]
+      };
+
+      if (nutritionChart) nutritionChart.destroy(); // reset if exists
+      nutritionChart = new Chart(ctx, {
+        type: "pie",
+        data: chartData
+      });
+
     } catch {
-      // Non-edible → Text response
-      ecoText.textContent = reply;
-      ecoSection.classList.remove("hidden");
+      // Non-edible or unexpected → show text
+      if (typeof reply === "string" && reply.length > 0) {
+        ecoText.textContent = reply;
+        ecoSection.classList.remove("hidden");
+      } else {
+        fallbackText.textContent = JSON.stringify(reply, null, 2);
+        fallbackSection.classList.remove("hidden");
+      }
     }
 
   } catch (err) {
