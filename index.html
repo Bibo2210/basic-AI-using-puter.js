@@ -5,6 +5,7 @@
   <title>EcoReveal 🌱</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://js.puter.com/v2/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
 </head>
 <body>
   <div class="container">
@@ -20,12 +21,19 @@
       <div id="nutritionSection" class="hidden">
         <h2>🍽 Nutritional Information</h2>
         <ul id="nutritionList"></ul>
+        <canvas id="nutritionChart" width="300" height="300"></canvas>
       </div>
 
       <!-- Non-Edible Results -->
       <div id="ecoSection" class="hidden">
         <h2>🌿 Sustainability Analysis</h2>
         <p id="ecoText"></p>
+      </div>
+
+      <!-- Fallback -->
+      <div id="fallbackSection" class="hidden">
+        <h2>ℹ️ AI Response</h2>
+        <p id="fallbackText"></p>
       </div>
     </div>
   </div>
