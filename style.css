@@ -1,101 +1,62 @@
-/* General page styling */
 body {
+  background: #f1fff1;
   font-family: Arial, sans-serif;
-  background: #f4f9f4;
-  margin: 0;
-  padding: 0;
+  text-align: center;
+  color: #225522;
 }
 
 .container {
-  max-width: 900px;
-  margin: 40px auto;
+  width: 600px;
+  margin: 30px auto;
   padding: 20px;
-  background: #fff;
+  background: #e6ffe6;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
 }
 
-/* Title */
-h1 {
-  text-align: center;
-  color: #2e7d32;
-  margin-bottom: 20px;
-}
-
-/* Prompt section */
-#prompt-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-#prompt {
-  width: 100%;
+textarea {
+  width: 90%;
   min-height: 60px;
-  max-height: 300px;
-  resize: none; /* user can't resize */
-  padding: 10px;
+  resize: none; /* prevents manual resizing */
+  padding: 8px;
   font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
 }
 
 button {
-  padding: 10px 16px;
-  font-size: 16px;
+  padding: 10px 15px;
+  margin: 10px;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
-  background: #4caf50;
+  background: #3cb371;
   color: white;
-  transition: 0.3s;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 button:disabled {
-  background: #9e9e9e;
+  background: grey;
   cursor: not-allowed;
 }
 
-button:hover:not(:disabled) {
-  background: #388e3c;
-}
-
-/* Image preview grid */
-#image-preview {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.image-card {
-  border: 2px solid #4caf50;
-  border-radius: 12px;
-  padding: 5px;
-  background: #f9fff9;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+#imagePreview {
+  margin-top: 10px;
   display: flex;
+  gap: 10px;
   justify-content: center;
-  align-items: center;
+  flex-wrap: wrap;
 }
 
-.image-card img {
-  max-width: 100%;
-  height: auto;
+#imagePreview img {
+  max-width: 120px;
+  max-height: 120px;
   border-radius: 8px;
+  object-fit: cover;
 }
 
-/* Results section */
-#response {
+#output, #nutrition {
   margin-top: 20px;
+  text-align: left;
+  background: #fff;
   padding: 15px;
-  border-radius: 12px;
-  background: #f1f8f1;
-  border: 1px solid #ddd;
-}
-
-/* Chart container */
-#chart-container {
-  margin-top: 20px;
+  border-radius: 10px;
 }
