@@ -2,41 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EcoReveal 🌱</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoReveal</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://js.puter.com/v2/"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
 </head>
 <body>
   <div class="container">
-    <h1>EcoReveal 🌍🍎</h1>
+    <h1>🌱 EcoReveal</h1>
+    <p>Analyze products for nutrition & sustainability</p>
 
-    <textarea id="prompt" placeholder="Enter product name or description..."></textarea>
-    <input type="file" id="imageInput" accept="image/*">
-    <button id="submit">Analyze</button>
+    <textarea id="prompt" placeholder="Type product name here..."></textarea>
+    <br>
+    <input type="file" id="imageUpload" multiple accept="image/*">
+    <button id="clearBtn">Clear</button>
+    <br><br>
+    <button id="analyzeBtn" disabled>Analyze</button>
 
-    <!-- Results -->
-    <div id="result">
-      <!-- Edible Results -->
-      <div id="nutritionSection" class="hidden">
-        <h2>🍽 Nutritional Information</h2>
-        <ul id="nutritionList"></ul>
-        <canvas id="nutritionChart" width="300" height="300"></canvas>
-      </div>
+    <div id="imagePreview"></div>
 
-      <!-- Non-Edible Results -->
-      <div id="ecoSection" class="hidden">
-        <h2>🌿 Sustainability Analysis</h2>
-        <p id="ecoText"></p>
-      </div>
-
-      <!-- Fallback -->
-      <div id="fallbackSection" class="hidden">
-        <h2>ℹ️ AI Response</h2>
-        <p id="fallbackText"></p>
-      </div>
+    <div id="output" class="hidden"></div>
+    <div id="nutrition" class="hidden"></div>
+    <div id="chartContainer" class="hidden">
+      <canvas id="nutritionChart"></canvas>
     </div>
   </div>
   <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
