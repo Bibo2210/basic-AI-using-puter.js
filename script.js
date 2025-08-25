@@ -1,111 +1,121 @@
-const analyzeBtn = document.getElementById("analyzeBtn");
-const promptBox = document.getElementById("prompt");
-const outputDiv = document.getElementById("output");
-const nutritionDiv = document.getElementById("nutrition");
-const chartContainer = document.getElementById("chartContainer");
-const clearBtn = document.getElementById("clearBtn");
-const imageUpload = document.getElementById("imageUpload");
-const imagePreview = document.getElementById("imagePreview");
+// Handle image upload + preview
+document.getElementById("imageInput").addEventListener("change", function (event) {
+  const files = event.target.files;
+  const preview = document.getElementById("image-preview");
+  preview.innerHTML = ""; // Clear previous previews
 
-let nutritionChart = null;
-
-// Enable Analyze when text or images exist
-function toggleAnalyze() {
-  if (promptBox.value.trim() || imageUpload.files.length > 0) {
-    analyzeBtn.disabled = false;
-  } else {
-    analyzeBtn.disabled = true;
-  }
-}
-
-promptBox.addEventListener("input", () => {
-  promptBox.style.height = "auto";
-  promptBox.style.height = promptBox.scrollHeight + "px"; // auto expand
-  toggleAnalyze();
-});
-
-imageUpload.addEventListener("change", () => {
-  imagePreview.innerHTML = "";
-  [...imageUpload.files].forEach(file => {
+  Array.from(files).forEach(file => {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = function (e) {
+      const card = document.createElement("div");
+      card.classList.add("image-card");
+
       const img = document.createElement("img");
       img.src = e.target.result;
-      imagePreview.appendChild(img);
+
+      card.appendChild(img);
+      preview.appendChild(card);
     };
     reader.readAsDataURL(file);
   });
-  toggleAnalyze();
 });
 
-// Clear button
-clearBtn.addEventListener("click", () => {
-  imageUpload.value = "";
-  imagePreview.innerHTML = "";
-  outputDiv.classList.add("hidden");
-  nutritionDiv.classList.add("hidden");
-  chartContainer.classList.add("hidden");
-  toggleAnalyze();
-});
+// Analyze button logic
+document.getElementById("analyzeBtn").addEventListener("click", function () {
+  const btn = this;
+  btn.disabled = true; // disable to prevent spam
 
-// Simulated AI call
-analyzeBtn.addEventListener("click", async () => {
-  outputDiv.classList.add("hidden");
-  nutritionDiv.classList.add("hidden");
-  chartContainer.classList.add("hidden");
+  const prompt = document.getElementById("prompt").value.trim();
+  const responseBox = document.getElementById("response");
+  responseBox.innerHTML = "";
 
-  let prompt = promptBox.value.trim();
-  if (!prompt && imageUpload.files.length === 0) {
-    alert("Please provide a product name or image.");
+  if (!prompt) {
+    responseBox.innerHTML = `<p style="color:red;">⚠️ Please enter a prompt.</p>`;
+    btn.disabled = false;
     return;
   }
 
-  // Simple text check to see if it's valid
-  if (!/\w/.test(prompt) && imageUpload.files.length === 0) {
-    outputDiv.innerHTML = "<b>Please provide a valid product or item description.</b>";
-    outputDiv.classList.remove("hidden");
+  // Basic check: if it's not a valid item
+  if (!isValidItem(prompt)) {
+    responseBox.innerHTML = `<p style="color:red;">⚠️ Please enter a valid item (food or product).</p>`;
+    btn.disabled = false;
     return;
   }
 
-  // Simulate edible vs non-edible
-  let edible = prompt.toLowerCase().includes("apple") || prompt.toLowerCase().includes("bread");
+  // Simulated API response
+  setTimeout(() => {
+    const isFood = checkIfEdible(prompt);
 
-  if (edible) {
-    let nutrients = {
-      Calories: 95,
-      Protein: 0.5,
-      Fat: 0.3,
-      Carbohydrates: 25,
-      Fiber: 4.4
-    };
+    if (isFood) {
+      responseBox.innerHTML = `
+        <h3>🍽 Nutritional Information</h3>
+        <p><b>Item:</b> ${prompt}</p>
+        <div id="chart-container">
+          <canvas id="nutritionChart"></canvas>
+        </div>
+      `;
 
-    nutritionDiv.innerHTML = `
-      <h3>🍽 Nutritional Information</h3>
-      <ul>
-        ${Object.entries(nutrients).map(([k,v]) => `<li><b>${k}:</b> ${v}</li>`).join("")}
-      </ul>
-    `;
-    nutritionDiv.classList.remove("hidden");
+      // Example nutrition data
+      const nutrition = { proteins: 25, fats: 15, carbohydrates: 60 };
+      renderNutritionChart(nutrition);
+    } else {
+      responseBox.innerHTML = `<p>✅ "${prompt}" is not edible, no nutrition info available.</p>`;
+    }
 
-    // Chart
-    if (nutritionChart) nutritionChart.destroy();
-    nutritionChart = new Chart(document.getElementById("nutritionChart"), {
-      type: "pie",
-      data: {
-        labels: Object.keys(nutrients),
-        datasets: [{
-          data: Object.values(nutrients),
-          backgroundColor: ["#66bb6a", "#81c784", "#a5d6a7", "#c8e6c9", "#e8f5e9"]
-        }]
+    btn.disabled = false;
+  }, 1000);
+});
+
+// Check if prompt is valid (simple check)
+function isValidItem(text) {
+  return /^[a-zA-Z0-9\s]+$/.test(text); // only words & numbers
+}
+
+// Check if edible (basic simulation)
+function checkIfEdible(item) {
+  const foodList = ["apple", "bread", "cheese", "tuna", "rice", "milk", "egg"];
+  return foodList.includes(item.toLowerCase());
+}
+
+// Render nutrition pie chart
+function renderNutritionChart(nutrition) {
+  const ctx = document.getElementById("nutritionChart").getContext("2d");
+
+  if (window.nutritionChart) {
+    window.nutritionChart.destroy();
+  }
+
+  window.nutritionChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Proteins", "Fats", "Carbohydrates"],
+      datasets: [{
+        data: [nutrition.proteins, nutrition.fats, nutrition.carbohydrates],
+        backgroundColor: ["#4caf50", "#ff9800", "#2196f3"], // green, orange, blue
+        borderWidth: 2,
+        borderColor: "#fff"
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            color: "#333",
+            font: { size: 14, weight: "bold" }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              let label = context.label || '';
+              let value = context.raw || 0;
+              return `${label}: ${value}g`;
+            }
+          }
+        }
       }
-    });
-    chartContainer.classList.remove("hidden");
-  } else {
-    outputDiv.innerHTML = `
-      <h3>♻ Sustainability Check</h3>
-      <p>This product may not be edible. Evaluating eco-friendliness...</p>
-      <p><b>Eco Tip:</b> Consider using reusable alternatives to reduce waste.</p>
-    `;
-    outputDiv.classList.remove("hidden");
-  }
-});
+    }
+  });
+}
