@@ -31,13 +31,13 @@ h1 {
 textarea {
   width: 100%;
   min-height: 60px;
-  resize: none;
+  resize: none;              /* user can't drag to resize */
   padding: 10px;
   border: 2px solid #2e7d32;
   border-radius: 8px;
   font-size: 14px;
   box-sizing: border-box;
-  overflow-y: hidden;
+  overflow-y: hidden;         /* auto-grow keeps it clean */
 }
 
 .upload-section {
@@ -76,10 +76,11 @@ textarea {
 }
 
 .image-preview img {
-  max-width: 100px;
+  max-width: 100px;   /* small, neat thumbnails */
   max-height: 100px;
   border-radius: 8px;
   border: 2px solid #ddd;
+  object-fit: cover;  /* keeps proportions nice */
 }
 
 .analyze-btn {
@@ -92,7 +93,7 @@ textarea {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: opacity 0.2s;
 }
 
 .analyze-btn:disabled {
