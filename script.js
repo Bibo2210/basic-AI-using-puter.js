@@ -1,121 +1,120 @@
-// Handle image upload + preview
-document.getElementById("imageInput").addEventListener("change", function (event) {
-  const files = event.target.files;
-  const preview = document.getElementById("image-preview");
-  preview.innerHTML = ""; // Clear previous previews
+const promptInput = document.getElementById("prompt");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const imageUpload = document.getElementById("imageUpload");
+const clearBtn = document.getElementById("clearBtn");
+const imagePreview = document.getElementById("imagePreview");
+const output = document.getElementById("output");
+const nutritionInfo = document.getElementById("nutritionInfo");
+const nutritionList = document.getElementById("nutritionList");
+const nutritionChartCanvas = document.getElementById("nutritionChart");
 
-  Array.from(files).forEach(file => {
+let chartInstance = null;
+
+// Auto-grow textarea height
+promptInput.addEventListener("input", () => {
+  promptInput.style.height = "auto";
+  promptInput.style.height = promptInput.scrollHeight + "px";
+  toggleAnalyzeButton();
+});
+
+// Enable/disable Analyze button
+function toggleAnalyzeButton() {
+  if (promptInput.value.trim() || imageUpload.files.length > 0) {
+    analyzeBtn.disabled = false;
+  } else {
+    analyzeBtn.disabled = true;
+  }
+}
+
+// Preview uploaded images
+imageUpload.addEventListener("change", () => {
+  imagePreview.innerHTML = "";
+  Array.from(imageUpload.files).forEach(file => {
     const reader = new FileReader();
-    reader.onload = function (e) {
-      const card = document.createElement("div");
-      card.classList.add("image-card");
-
+    reader.onload = e => {
       const img = document.createElement("img");
       img.src = e.target.result;
-
-      card.appendChild(img);
-      preview.appendChild(card);
+      imagePreview.appendChild(img);
     };
     reader.readAsDataURL(file);
   });
+  toggleAnalyzeButton();
 });
 
-// Analyze button logic
-document.getElementById("analyzeBtn").addEventListener("click", function () {
-  const btn = this;
-  btn.disabled = true; // disable to prevent spam
-
-  const prompt = document.getElementById("prompt").value.trim();
-  const responseBox = document.getElementById("response");
-  responseBox.innerHTML = "";
-
-  if (!prompt) {
-    responseBox.innerHTML = `<p style="color:red;">⚠️ Please enter a prompt.</p>`;
-    btn.disabled = false;
-    return;
-  }
-
-  // Basic check: if it's not a valid item
-  if (!isValidItem(prompt)) {
-    responseBox.innerHTML = `<p style="color:red;">⚠️ Please enter a valid item (food or product).</p>`;
-    btn.disabled = false;
-    return;
-  }
-
-  // Simulated API response
-  setTimeout(() => {
-    const isFood = checkIfEdible(prompt);
-
-    if (isFood) {
-      responseBox.innerHTML = `
-        <h3>🍽 Nutritional Information</h3>
-        <p><b>Item:</b> ${prompt}</p>
-        <div id="chart-container">
-          <canvas id="nutritionChart"></canvas>
-        </div>
-      `;
-
-      // Example nutrition data
-      const nutrition = { proteins: 25, fats: 15, carbohydrates: 60 };
-      renderNutritionChart(nutrition);
-    } else {
-      responseBox.innerHTML = `<p>✅ "${prompt}" is not edible, no nutrition info available.</p>`;
-    }
-
-    btn.disabled = false;
-  }, 1000);
+// Clear images
+clearBtn.addEventListener("click", () => {
+  imageUpload.value = "";
+  imagePreview.innerHTML = "";
+  toggleAnalyzeButton();
 });
 
-// Check if prompt is valid (simple check)
-function isValidItem(text) {
-  return /^[a-zA-Z0-9\s]+$/.test(text); // only words & numbers
-}
-
-// Check if edible (basic simulation)
-function checkIfEdible(item) {
-  const foodList = ["apple", "bread", "cheese", "tuna", "rice", "milk", "egg"];
-  return foodList.includes(item.toLowerCase());
-}
-
-// Render nutrition pie chart
-function renderNutritionChart(nutrition) {
-  const ctx = document.getElementById("nutritionChart").getContext("2d");
-
-  if (window.nutritionChart) {
-    window.nutritionChart.destroy();
+// Simulated AI response
+async function analyzeProduct(prompt) {
+  // Fake detection logic
+  if (!prompt.toLowerCase().includes("apple") && !prompt.toLowerCase().includes("bottle")) {
+    return { type: "invalid" };
   }
 
-  window.nutritionChart = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: ["Proteins", "Fats", "Carbohydrates"],
-      datasets: [{
-        data: [nutrition.proteins, nutrition.fats, nutrition.carbohydrates],
-        backgroundColor: ["#4caf50", "#ff9800", "#2196f3"], // green, orange, blue
-        borderWidth: 2,
-        borderColor: "#fff"
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            color: "#333",
-            font: { size: 14, weight: "bold" }
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              let label = context.label || '';
-              let value = context.raw || 0;
-              return `${label}: ${value}g`;
-            }
-          }
-        }
+  if (prompt.toLowerCase().includes("apple")) {
+    return {
+      type: "edible",
+      nutrition: {
+        Calories: 95,
+        Protein: "0.5g",
+        Fat: "0.3g",
+        Carbohydrates: "25g",
+        Fiber: "4g"
       }
-    }
-  });
+    };
+  } else {
+    return {
+      type: "non-edible",
+      message: "This plastic bottle has a high carbon footprint. Consider using a reusable glass or metal bottle."
+    };
+  }
 }
+
+// Handle Analyze button click
+analyzeBtn.addEventListener("click", async () => {
+  analyzeBtn.disabled = true;
+  output.textContent = "Analyzing...";
+
+  const prompt = promptInput.value.trim();
+
+  const response = await analyzeProduct(prompt);
+
+  output.textContent = "";
+
+  if (response.type === "invalid") {
+    output.textContent = "⚠️ Please enter a valid product description or upload an image.";
+    nutritionInfo.style.display = "none";
+  } else if (response.type === "edible") {
+    nutritionInfo.style.display = "block";
+    nutritionList.innerHTML = "";
+    Object.entries(response.nutrition).forEach(([key, value]) => {
+      const li = document.createElement("li");
+      li.textContent = `${key}: ${value}`;
+      nutritionList.appendChild(li);
+    });
+
+    // Pie chart
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(nutritionChartCanvas, {
+      type: "pie",
+      data: {
+        labels: Object.keys(response.nutrition),
+        datasets: [{
+          data: Object.values(response.nutrition).map(v => parseFloat(v) || 0),
+          backgroundColor: [
+            "#43a047", "#1e88e5", "#fdd835", "#fb8c00", "#8e24aa"
+          ]
+        }]
+      }
+    });
+  } else {
+    output.textContent = response.message;
+    nutritionInfo.style.display = "none";
+  }
+
+  analyzeBtn.disabled = false;
+});
