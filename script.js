@@ -1,3 +1,4 @@
+// Elements
 const promptInput = document.getElementById("prompt");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const imageUpload = document.getElementById("imageUpload");
@@ -10,23 +11,29 @@ const nutritionChartCanvas = document.getElementById("nutritionChart");
 
 let chartInstance = null;
 
-// Auto-grow textarea height
+// ---- Enable/Disable Analyze Button ----
+function updateAnalyzeButtonState() {
+  const hasText = promptInput.value.trim().length > 0;
+  const hasImages = imageUpload.files && imageUpload.files.length > 0;
+  analyzeBtn.disabled = !(hasText || hasImages);
+}
+
+// Initialize state on load
+document.addEventListener("DOMContentLoaded", updateAnalyzeButtonState);
+
+// Re-check on every possible user action
+["input", "change", "keyup", "paste"].forEach(evt =>
+  promptInput.addEventListener(evt, updateAnalyzeButtonState)
+);
+imageUpload.addEventListener("change", updateAnalyzeButtonState);
+
+// Auto-grow textarea height while keeping width fixed
 promptInput.addEventListener("input", () => {
   promptInput.style.height = "auto";
   promptInput.style.height = promptInput.scrollHeight + "px";
-  toggleAnalyzeButton();
 });
 
-// Enable/disable Analyze button
-function toggleAnalyzeButton() {
-  if (promptInput.value.trim() || imageUpload.files.length > 0) {
-    analyzeBtn.disabled = false;
-  } else {
-    analyzeBtn.disabled = true;
-  }
-}
-
-// Preview uploaded images
+// ---- Image Preview (multiple) ----
 imageUpload.addEventListener("change", () => {
   imagePreview.innerHTML = "";
   Array.from(imageUpload.files).forEach(file => {
@@ -38,83 +45,131 @@ imageUpload.addEventListener("change", () => {
     };
     reader.readAsDataURL(file);
   });
-  toggleAnalyzeButton();
 });
 
-// Clear images
+// ---- Clear images ----
 clearBtn.addEventListener("click", () => {
   imageUpload.value = "";
   imagePreview.innerHTML = "";
-  toggleAnalyzeButton();
+  updateAnalyzeButtonState();
 });
 
-// Simulated AI response
-async function analyzeProduct(prompt) {
-  // Fake detection logic
-  if (!prompt.toLowerCase().includes("apple") && !prompt.toLowerCase().includes("bottle")) {
+// ---- Simulated AI logic (replace later with Puter.ai) ----
+async function analyzeProduct({ prompt }) {
+  // 4) Detect invalid prompt (not an item):
+  // Very simple heuristic: require at least one word character and not only stopwords like 'hi', 'hello'
+  const badExamples = ["hi", "hello", "hey", "what", "why", "how", "ok", "okay"];
+  const clean = (prompt || "").toLowerCase().trim();
+  const isWordy = /\w/.test(clean);
+  const isLikelyItem = isWordy && !badExamples.includes(clean);
+
+  if (!isLikelyItem) {
     return { type: "invalid" };
   }
 
-  if (prompt.toLowerCase().includes("apple")) {
+  // Demo classification:
+  // Any mention of typical foods → edible; otherwise non-edible example.
+  const foods = ["apple", "bread", "cheese", "tuna", "rice", "milk", "egg", "banana", "orange"];
+  const edible = foods.some(f => clean.includes(f));
+
+  if (edible) {
+    // 3) Edible → show nutrition list; we’ll chart only macros (distinct colors).
     return {
       type: "edible",
       nutrition: {
         Calories: 95,
-        Protein: "0.5g",
-        Fat: "0.3g",
-        Carbohydrates: "25g",
-        Fiber: "4g"
+        Proteins: 0.5,       // grams
+        Fats: 0.3,           // grams
+        Carbohydrates: 25,   // grams
+        Fiber: 4.0           // grams
       }
     };
-  } else {
-    return {
-      type: "non-edible",
-      message: "This plastic bottle has a high carbon footprint. Consider using a reusable glass or metal bottle."
-    };
   }
+
+  // 3) Non-edible → short, sufficient sustainability response
+  return {
+    type: "non-edible",
+    message:
+      "Likely non-edible. Consider material composition, carbon footprint, manufacturing practices, and recyclability. " +
+      "If this item isn’t eco-friendly, try reusable, repairable, or recycled alternatives."
+  };
 }
 
-// Handle Analyze button click
+// ---- Analyze click ----
 analyzeBtn.addEventListener("click", async () => {
+  // 5) Temporarily disable during processing
   analyzeBtn.disabled = true;
+
+  // Reset outputs
   output.textContent = "Analyzing...";
-
-  const prompt = promptInput.value.trim();
-
-  const response = await analyzeProduct(prompt);
-
-  output.textContent = "";
-
-  if (response.type === "invalid") {
-    output.textContent = "⚠️ Please enter a valid product description or upload an image.";
-    nutritionInfo.style.display = "none";
-  } else if (response.type === "edible") {
-    nutritionInfo.style.display = "block";
-    nutritionList.innerHTML = "";
-    Object.entries(response.nutrition).forEach(([key, value]) => {
-      const li = document.createElement("li");
-      li.textContent = `${key}: ${value}`;
-      nutritionList.appendChild(li);
-    });
-
-    // Pie chart
-    if (chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(nutritionChartCanvas, {
-      type: "pie",
-      data: {
-        labels: Object.keys(response.nutrition),
-        datasets: [{
-          data: Object.values(response.nutrition).map(v => parseFloat(v) || 0),
-          backgroundColor: [
-            "#43a047", "#1e88e5", "#fdd835", "#fb8c00", "#8e24aa"
-          ]
-        }]
-      }
-    });
-  } else {
-    output.textContent = response.message;
-    nutritionInfo.style.display = "none";
+  nutritionInfo.style.display = "none";
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
   }
 
-  analyzeBtn.disabled = false;
+  try {
+    const prompt = promptInput.value.trim();
+    const result = await analyzeProduct({ prompt });
+
+    output.textContent = ""; // clear the "Analyzing..." line
+
+    if (result.type === "invalid") {
+      output.textContent = "⚠️ Please enter a valid product (food or item) description that suits the app’s purpose.";
+      nutritionInfo.style.display = "none";
+    } else if (result.type === "edible") {
+      // Show nutrition block
+      nutritionList.innerHTML = "";
+      Object.entries(result.nutrition).forEach(([k, v]) => {
+        const li = document.createElement("li");
+        li.textContent = `${k}: ${v}${typeof v === "number" && k !== "Calories" ? "g" : ""}`;
+        nutritionList.appendChild(li);
+      });
+      nutritionInfo.style.display = "block";
+
+      // 2) Pie chart colors — distinct, clear
+      const macros = {
+        Proteins: result.nutrition.Proteins || 0,
+        Fats: result.nutrition.Fats || 0,
+        Carbohydrates: result.nutrition.Carbohydrates || 0
+      };
+
+      chartInstance = new Chart(nutritionChartCanvas, {
+        type: "pie",
+        data: {
+          labels: Object.keys(macros),
+          datasets: [{
+            data: Object.values(macros),
+            backgroundColor: ["#2e7d32", "#ff9800", "#1e88e5"], // green / orange / blue
+            borderWidth: 2,
+            borderColor: "#fff"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${ctx.raw}g`
+              }
+            }
+          }
+        }
+      });
+    } else {
+      // Non-edible
+      output.textContent = result.message;
+      nutritionInfo.style.display = "none";
+    }
+  } catch (e) {
+    output.textContent = "❌ Error while analyzing.";
+    console.error(e);
+  } finally {
+    // Re-enable based on current inputs (so it won't remain grey)
+    updateAnalyzeButtonState();
+  }
 });
+
+// Final safeguard: ensure correct initial state in case scripts loaded before DOM complete
+updateAnalyzeButtonState();
