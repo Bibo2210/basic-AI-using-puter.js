@@ -1,32 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EcoReveal</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="container">
-    <h1>🌱 EcoReveal</h1>
-    <p>Analyze products for nutrition & sustainability</p>
+    <h1>🌍 EcoReveal</h1>
+    <p class="subtitle">Smarter, greener choices made easy.</p>
 
-    <textarea id="prompt" placeholder="Type product name here..."></textarea>
-    <br>
-    <input type="file" id="imageUpload" multiple accept="image/*">
-    <button id="clearBtn">Clear</button>
-    <br><br>
-    <button id="analyzeBtn" disabled>Analyze</button>
+    <!-- Prompt box -->
+    <textarea id="prompt" placeholder="Enter product description here..."></textarea>
 
-    <div id="imagePreview"></div>
+    <!-- File upload section -->
+    <div class="upload-section">
+      <label for="imageUpload" class="upload-label">📷 Import images</label>
+      <input type="file" id="imageUpload" accept="image/*" multiple>
+      <button id="clearBtn" class="clear-btn">Clear</button>
+    </div>
+    <div id="imagePreview" class="image-preview"></div>
 
-    <div id="output" class="hidden"></div>
-    <div id="nutrition" class="hidden"></div>
-    <div id="chartContainer" class="hidden">
-      <canvas id="nutritionChart"></canvas>
+    <!-- Buttons -->
+    <button id="analyzeBtn" class="analyze-btn" disabled>Analyze</button>
+
+    <!-- Output -->
+    <div id="outputContainer">
+      <div id="output" class="output"></div>
+      <div id="nutritionInfo" class="nutrition-info" style="display: none;">
+        <h3>🍽 Nutritional Information</h3>
+        <ul id="nutritionList"></ul>
+        <canvas id="nutritionChart"></canvas>
+      </div>
     </div>
   </div>
-  <script src="script.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
