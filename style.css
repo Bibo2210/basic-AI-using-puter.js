@@ -1,127 +1,143 @@
+/* --- base / theme --- */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f8f5;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg,#eafaf0,#d7f3e2);
   margin: 0;
-  padding: 0;
-  color: #333;
+  color: #153a1f;
 }
 
 .container {
-  max-width: 700px;
-  margin: 40px auto;
+  max-width: 760px;
+  margin: 36px auto;
   padding: 20px;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 128, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(16,64,32,0.08);
 }
 
 h1 {
   text-align: center;
-  color: #2e7d32;
-  margin-bottom: 5px;
+  margin: 0 0 6px 0;
+  color: #1f7a3e;
 }
 
 .subtitle {
   text-align: center;
+  margin: 0 0 18px 0;
+  color: #426c56;
   font-size: 14px;
-  margin-bottom: 20px;
-  color: #555;
 }
 
+/* prompt */
 textarea {
   width: 100%;
-  min-height: 60px;
-  resize: none;              /* user can't drag to resize */
+  box-sizing: border-box;
   padding: 10px;
   border: 2px solid #2e7d32;
   border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
-  overflow-y: hidden;         /* auto-grow keeps it clean */
+  min-height: 60px;
+  max-height: 360px;
+  resize: none;          /* width fixed, user can't drag resize */
+  overflow-y: auto;      /* height auto-grown by JS */
+  font-size: 15px;
 }
 
-.upload-section {
-  margin-top: 15px;
+/* upload row */
+.upload-row {
+  margin-top: 12px;
   display: flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
 }
 
 .upload-label {
   background: #43a047;
-  color: #fff;
+  color: white;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
+  user-select: none;
 }
 
 #imageUpload {
-  display: none;
+  display: none; /* label handles click */
 }
 
 .clear-btn {
   background: #e53935;
-  color: #fff;
+  color: white;
   padding: 8px 12px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
 }
 
+/* image previews (tidy thumbnails) */
 .image-preview {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
+  flex-wrap: wrap;
 }
-
 .image-preview img {
-  max-width: 100px;   /* small, neat thumbnails */
-  max-height: 100px;
+  width: 100px;
+  height: 80px;
+  object-fit: cover;
   border-radius: 8px;
-  border: 2px solid #ddd;
-  object-fit: cover;  /* keeps proportions nice */
+  border: 2px solid #e6efe6;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
 }
 
+/* analyze button */
 .analyze-btn {
-  margin-top: 20px;
+  margin-top: 16px;
   width: 100%;
   padding: 12px;
   font-size: 16px;
-  background: #43a047;
-  color: #fff;
+  background: #2e7d32;
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: opacity 0.2s;
 }
-
 .analyze-btn:disabled {
   background: #9e9e9e;
   cursor: not-allowed;
 }
 
-.output {
+/* results */
+.results {
   margin-top: 20px;
-  padding: 15px;
-  background: #e8f5e9;
+}
+
+/* card */
+.card {
+  background: #f0fff4;
+  border: 1px solid #cfead2;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+/* tiny chart */
+.chart-small {
+  max-width: 220px;
+  margin: 10px auto 0;
+  display: block;
+}
+
+/* sustainability mini-cards */
+.meta-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.meta-item {
+  background: white;
   border-radius: 8px;
-  white-space: pre-wrap;
+  padding: 8px;
+  border: 1px solid #e9f5ea;
+  min-width: 140px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.04);
 }
-
-.nutrition-info {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f1f8e9;
-  border-radius: 8px;
-}
-
-#nutritionList {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 10px 0;
-}
-
-#nutritionList li {
-  margin-bottom: 5px;
-}
+.meta-item b {display: block; margin-bottom:6px;}
