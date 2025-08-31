@@ -1,43 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EcoReveal</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>EcoReveal • Puter AI</title>
+
+  <!-- Puter.js must be included BEFORE script.js so `puter` is available -->
+  <script src="https://js.puter.com/v2/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="container">
     <h1>🌍 EcoReveal</h1>
-    <p class="subtitle">Smarter, greener choices made easy.</p>
+    <p class="subtitle">Upload or describe a product — the AI will tell you if it’s edible and give nutrition, or analyze sustainability.</p>
 
-    <!-- Prompt box -->
-    <textarea id="prompt" placeholder="Enter product description here..."></textarea>
+    <textarea id="prompt" placeholder="E.g. 'red apple', 'plastic water bottle', or type a short description..."></textarea>
 
-    <!-- File upload section -->
-    <div class="upload-section">
-      <label for="imageUpload" class="upload-label">📷 Import images</label>
-      <input type="file" id="imageUpload" accept="image/*" multiple>
-      <button id="clearBtn" class="clear-btn" type="button">Clear</button>
+    <div class="upload-row">
+      <label class="upload-label" for="imageUpload">📷 Import images</label>
+      <input id="imageUpload" type="file" accept="image/*" multiple />
+      <button id="clearBtn" type="button" class="clear-btn">Clear</button>
     </div>
-    <div id="imagePreview" class="image-preview"></div>
 
-    <!-- Analyze button -->
-    <button id="analyzeBtn" class="analyze-btn" disabled type="button">Analyze</button>
+    <div id="imagePreview" class="image-preview" aria-live="polite"></div>
 
-    <!-- Output -->
-    <div id="outputContainer">
-      <div id="output" class="output"></div>
-      <div id="nutritionInfo" class="nutrition-info" style="display: none;">
-        <h3>🍽 Nutritional Information</h3>
-        <ul id="nutritionList"></ul>
-        <canvas id="nutritionChart"></canvas>
-      </div>
-    </div>
+    <button id="analyzeBtn" class="analyze-btn" disabled>Analyze</button>
+
+    <div id="results" class="results"></div>
   </div>
 
-  <!-- Chart.js first, then app script -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
